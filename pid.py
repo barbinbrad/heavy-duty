@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 from conversions import clip, interpolate
 
@@ -11,13 +12,13 @@ def apply_deadzone(error, deadzone):
   return error
 
 class PIController():
-  def __init__(self, k_p, k_i, k_d=0., k_f=1., pos_limit=None, neg_limit=None, rate=100, sat_limit=0.8):
+  def __init__(self, k_p, k_i, k_f=1., pos_limit=None, neg_limit=None, rate=100, sat_limit=0.8):
     self.k_p = k_p  # proportional gain
     self.k_i = k_i  # integral gain
     self.k_f = k_f  # feedforward gain
 
-    self.pos_limit = pos_limit # positive limit
-    self.neg_limit = neg_limit # negative limit
+    self.pos_limit = sys.float_info.max if pos_limit is None else pos_limit # positive limit
+    self.neg_limit = sys.float_info.min if neg_limit is None else neg_limit # negative limit
 
     self.sat_count_rate = 1.0 / rate
     self.unwind_rate = 0.3 / rate
@@ -81,8 +82,8 @@ class PIDController():
     self.k_d = k_d # derivative gain
     self.k_f = k_f  # feedforward gain
 
-    self.pos_limit = pos_limit # positive limit
-    self.neg_limit = neg_limit # negative limit
+    self.pos_limit = sys.float_info.max if pos_limit is None else pos_limit # positive limit
+    self.neg_limit = sys.float_info.min if neg_limit is None else neg_limit # negative limit
 
     self.sat_count_rate = 1.0 / rate
     self.unwind_rate = 0.3 / rate
@@ -144,14 +145,15 @@ class PIDController():
     
     return self.control
 
+
 class PIControllerWithWeightedGains():
   def __init__(self, k_p, k_i, k_f=1., pos_limit=None, neg_limit=None, rate=100, sat_limit=0.8):
     self._k_p = k_p  # proportional gain
     self._k_i = k_i  # integral gain
     self.k_f = k_f  # feedforward gain
 
-    self.pos_limit = pos_limit # positive limit
-    self.neg_limit = neg_limit # negative limit
+    self.pos_limit = sys.float_info.max if pos_limit is None else pos_limit # positive limit
+    self.neg_limit = sys.float_info.min if neg_limit is None else neg_limit # negative limit
 
     self.sat_count_rate = 1.0 / rate
     self.unwind_rate = 0.3 / rate
@@ -224,8 +226,8 @@ class PIDControllerWithWeightedGains():
     self._k_d = k_d # derivative gain
     self.k_f = k_f  # feedforward gain
 
-    self.pos_limit = pos_limit # positive limit
-    self.neg_limit = neg_limit # negative limit
+    self.pos_limit = sys.float_info.max if pos_limit is None else pos_limit # positive limit
+    self.neg_limit = sys.float_info.min if neg_limit is None else neg_limit # negative limit
 
     self.sat_count_rate = 1.0 / rate
     self.unwind_rate = 0.3 / rate
