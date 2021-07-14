@@ -30,17 +30,17 @@ def distance(p, q):
 def clip(x, lo, hi):
   return max(lo, min(hi, x))
 
-def interpolate(x, xp, fp):
-  N = len(xp)
+def interpolate(x, list_of_x, list_of_y):
+  N = len(list_of_x)
 
   def get_interpolate(xv):
     hi = 0
-    while hi < N and xv > xp[hi]:
+    while hi < N and xv > list_of_x[hi]:
       hi += 1
     low = hi - 1
-    return fp[-1] if hi == N and xv > xp[low] else (
-      fp[0] if hi == 0 else
-      (xv - xp[low]) * (fp[hi] - fp[low]) / (xp[hi] - xp[low]) + fp[low])
+    return list_of_y[-1] if hi == N and xv > list_of_x[low] else (
+      list_of_y[0] if hi == 0 else
+      (xv - list_of_x[low]) * (list_of_y[hi] - list_of_y[low]) / (list_of_x[hi] - list_of_x[low]) + list_of_y[low])
 
   return [get_interpolate(v) for v in x] if hasattr(x, '__iter__') else get_interpolate(x)
 
