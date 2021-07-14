@@ -1,4 +1,4 @@
-import conversions
+from conversions import Conversions
 from math import atan
 import re
 
@@ -14,8 +14,6 @@ gps.parse_sentence(sentence)
 print(gps.latitude, gps.longitude)
 
 """
-
-class UbxParser:
 
 class NmeaParser:
     def __init__ (self, local_utc_offset=-4): 
@@ -244,7 +242,7 @@ class NmeaParser:
         except:
             hdop = 0
 
-        if fix_stat:
+        if fix_status:
             try:
                 latitude_string = words[2]
                 latitude = int(latitude_string[0:2])
@@ -275,11 +273,11 @@ class NmeaParser:
                 
             try:
                 altitude = float(words[9])
-                kmph = conversions.knots_to_kmph(float(words[11])) 
+                kmh = Conversions.KNOT_TO_KPH * float(words[11]) 
                 roll = float(words[13])                
             except ValueError:
                 altitude = 0
-                kmph = 0
+                kmh = 0
                 roll = 0
 
             try:
@@ -344,8 +342,8 @@ class NmeaParser:
         try:
             height_difference = float(words[8]) # rover height - base height
             length_difference = float(words[9]) # distance between base and rover
-            radians = math.atan(height_difference / length_difference)
-            roll = conversions.radians_to_degrees(radians)
+            radians = atan(height_difference / length_difference)
+            roll = Conversions.RAD_TO_DEG * radians
             roll = self.kalman_filter(roll)
         except ValueError:
             return False
