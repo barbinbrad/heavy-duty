@@ -45,7 +45,7 @@ MAXIMUM_CAPACITY = 100
 CUSTOMERS = 10
 COURIERS = 3
 
-g = googlemaps.Client(key=GOOGLE_MAPS_API_KEY)
+maps = googlemaps.Client(key=GOOGLE_MAPS_API_KEY)
 
 class Courier:
     def __init__(self, start, end, capacity=MAXIMUM_CAPACITY):
@@ -112,7 +112,7 @@ class Planner:
                         self.distance_matrix[i][j] = distance
                         self.distance_matrix[j][i] = distance
                     elif self.distance_matrix[i][j] != 0.0: 
-                        google_maps_api_result = g.directions(
+                        google_maps_api_result = maps.directions(
                                             self.nodes[i].csv,
                                             self.nodes[j].csv,
                                             mode=GOOGLE_MAPS_MODE)
@@ -248,7 +248,7 @@ class Planner:
 
     def test_google_maps(self):
 
-        google_maps_api_result = g.directions(
+        google_maps_api_result = maps.directions(
             self.nodes[0].csv,
             self.nodes[1].csv,
             mode=GOOGLE_MAPS_MODE)
