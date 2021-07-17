@@ -25,6 +25,7 @@ Constraints:
     7) All nodes must be visited (no subtours)
 """
 
+import os
 import numpy as np
 from tabulate import tabulate
 from random import random
@@ -35,7 +36,7 @@ import gmaps
 import googlemaps
 
 
-GOOGLE_MAPS_API_KEY = ''
+GOOGLE_MAPS_API_KEY = os.environ['GOOGLE_MAPS_API_KEY']
 GOOGLE_MAPS_MODE = 'driving' # {'driving', 'walking', 'cycling'}
 HOME_LATITUDE = 40.4785235
 HOME_LONGITUDE = -80.0798291
@@ -44,7 +45,7 @@ MAXIMUM_CAPACITY = 100
 CUSTOMERS = 10
 COURIERS = 3
 
-
+g = googlemaps.Client(key=GOOGLE_MAPS_API_KEY)
 
 class Courier:
     def __init__(self, start, end, capacity=MAXIMUM_CAPACITY):
@@ -94,6 +95,8 @@ class Planner:
         self.add_node_to_set(courier.end)
 
     def create_distance_matrix(self, bypass_api=False, cache=True):               
+        print('Creating distance matrix...')
+        print(GOOGLE_MAPS_API_KEY)
         if cache and self.loaded_from_cache():
             return
 
@@ -109,10 +112,10 @@ class Planner:
                         self.distance_matrix[i][j] = distance
                         self.distance_matrix[j][i] = distance
                     elif self.distance_matrix[i][j] != 0.0: 
-                        google_maps_api_result = googlemaps.directions(
-                                            self.nodes[i].destination.csv,
-                                            self.requests[j].origin.csv,
-                                            mode=MODE)
+                        google_maps_api_result = g.directions(
+                                            self.nodes[i].csv,
+                                            self.nodes[j].csv,
+                                            mode=GOOGLE_MAPS_MODE)
             
                         self.distance_matrix[i][j] = google_maps_api_result[0]['legs'][0]['distance']['value']
                         self.distance_matrix[j][i] = google_maps_api_result[0]['legs'][0]['distance']['value']
@@ -243,6 +246,17 @@ class Planner:
             total_distance += route_distance
         print('Total Distance of all routes: {}m'.format(total_distance))
 
+    def test_google_maps(self):
+
+        google_maps_api_result = g.directions(
+            self.nodes[0].csv,
+            self.nodes[1].csv,
+            mode=GOOGLE_MAPS_MODE)
+
+        print(google_maps_api_result)
+
+        return True
+
 def GetSearchParams():
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
     search_parameters.first_solution_strategy = (
@@ -250,25 +264,25 @@ def GetSearchParams():
     return search_parameters
 
 
-def main():
-    dispatch = Planner()
+def example():
+    planner = Planner()
 
-    dispatch.generate_couriers(COURIERS)
-    dispatch.generate_requests(CUSTOMERS)
-    
-    dispatch.create_distance_matrix(bypass_api=True)
-    dispatch.create_model()
-    dispatch.add_constraints()
+    planner.generate_couriers(COURIERS)
+    planner.generate_requests(CUSTOMERS)
+    bypass_api = planner.test_google_maps()
+    planner.create_distance_matrix(bypass_api=bypass_api)
+    planner.create_model()
+    planner.add_constraints()
 
     params = GetSearchParams()
 
     # Solve the problem.
     print('Solving...')
-    solution = dispatch.routing.SolveWithParameters(params)
+    solution = planner.routing.SolveWithParameters(params)
 
     if solution:
-        dispatch.print_solution(solution)
+        planner.print_solution(solution)
 
 if __name__ == "__main__":
     # execute only if run as a script
-    main()
+    example()
