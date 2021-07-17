@@ -246,16 +246,16 @@ class Planner:
             total_distance += route_distance
         print('Total Distance of all routes: {}m'.format(total_distance))
 
-    def test_google_maps(self):
-
-        google_maps_api_result = maps.directions(
-            self.nodes[0].csv,
-            self.nodes[1].csv,
-            mode=GOOGLE_MAPS_MODE)
-
-        print(google_maps_api_result)
-
-        return True
+    def can_connect_to_google_maps(self):
+        try:
+            google_maps_api_result = maps.directions(
+                self.nodes[0].csv,
+                self.nodes[1].csv,
+                mode=GOOGLE_MAPS_MODE)
+            _ = google_maps_api_result[0]['legs'][0]['distance']['value']
+            return True
+        except:
+            return False
 
 def GetSearchParams():
     search_parameters = pywrapcp.DefaultRoutingSearchParameters()
@@ -269,7 +269,7 @@ def example():
 
     planner.generate_couriers(COURIERS)
     planner.generate_requests(CUSTOMERS)
-    bypass_api = planner.test_google_maps()
+    bypass_api = not planner.can_connect_to_google_maps()
     planner.create_distance_matrix(bypass_api=bypass_api)
     planner.create_model()
     planner.add_constraints()
