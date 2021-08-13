@@ -26,7 +26,6 @@ Constraints:
 """
 
 import os
-import numpy as np
 from tabulate import tabulate
 from random import random
 from conversions import clip
